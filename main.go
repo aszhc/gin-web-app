@@ -9,8 +9,6 @@ import (
 	"gin-web-app/settings"
 
 	"go.uber.org/zap"
-
-	"github.com/spf13/viper"
 )
 
 func main() {
@@ -20,19 +18,19 @@ func main() {
 		return
 	}
 	// 2. 初始化日志
-	if err := logger.Init(); err != nil {
+	if err := logger.Init(settings.Conf.LogConfig); err != nil {
 		fmt.Printf("init logger failed, err:%v\n", err)
 		return
 	}
 	defer zap.L().Sync() // 缓冲区的日志追加到日志中
 	// 3. 初始化 mysql
-	if err := mysql.Init(); err != nil {
+	if err := mysql.Init(settings.Conf.MySQLConfig); err != nil {
 		fmt.Printf("init mysql failed, err:%v\n", err)
 		return
 	}
 	defer mysql.Close()
 	// 4. 初始化 redis
-	if err := redis.Init(); err != nil {
+	if err := redis.Init(settings.Conf.RedisConfig); err != nil {
 		fmt.Printf("init mysql failed, err:%v\n", err)
 		return
 	}
@@ -40,5 +38,5 @@ func main() {
 	// 5. 注册路由
 	r := routes.Setup()
 	// 6. 启动服务
-	r.Run(fmt.Sprintf(":%d", viper.GetInt("app.port")))
+	r.Run(fmt.Sprintf(":%d", settings.Conf.Port))
 }
